@@ -104,6 +104,8 @@ async function verifyPayment(bodyData, token, navigate, dispatch){
  const toastId = toast.loading("Verifying Payment...");
  dispatch(setPaymentLoading(true))
  try {
+    console.log("Starting payment verification with data:", bodyData);
+    
     const response = await apiConnector("POST", COURSE_VERIFY_API, bodyData, {
         Authorization: `Bearer ${token}`
     })
@@ -112,16 +114,33 @@ async function verifyPayment(bodyData, token, navigate, dispatch){
     
     if(!response?.data?.success){
         const errorMsg = response?.data?.message || "Payment verification failed";
+        console.log("Payment verification failed:", errorMsg);
         throw new Error(errorMsg);
     }
-    toast.success("Payment Successful, you are added to the course");
+    
+    console.log("Payment verified successfully!");
+    toast.success("Payment Successful! You are enrolled in the course.");
     navigate("/dashboard/enrolled-courses")
     dispatch(resetCart());
+    
  } catch (error) {
     console.log("VERIFY PAYMENT ERROR....", error);
-    const errorMessage = error?.response?.data?.message || error?.message || "Could not verify Payment";
+    
+    let errorMessage = "Could not verify payment";
+    
+    if (error.code === 'ECONNABORTED') {
+        errorMessage = "Payment verification timed out. Please check your enrolled courses.";
+    } else if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message;
+    } else if (error?.message) {
+        errorMessage = error.message;
+    }
+    
+    console.log("Showing error message:", errorMessage);
     toast.error(errorMessage);
+    
  } finally {
+    console.log("Cleaning up payment verification");
     toast.dismiss(toastId)
     dispatch(setPaymentLoading(false))
  }

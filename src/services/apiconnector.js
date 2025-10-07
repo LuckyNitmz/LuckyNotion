@@ -3,7 +3,7 @@ import axios from "axios"
 export const axiosInstance = axios.create({
   baseURL: process.env.REACT_APP_BASE_URL || 'http://localhost:4000/api/v1',
   withCredentials: true,
-  timeout: 30000
+  timeout: 60000  // Increased timeout to 60 seconds for payment operations
 });
 
 // Add a request interceptor to include token from localStorage if available

@@ -157,11 +157,16 @@ const enrollStudents = async (courses, userId, res) => {
       )
 
         // bachche ko mail send kardo
-        const emailResponse = await mailSender(
+        // Send email asynchronously (non-blocking)
+        mailSender(
             enrolledStudent.email,
             `Successfully Enrolled into ${enrolledCourse.courseName}`,
             courseEnrollmentEmail(enrolledCourse.courseName, `${enrolledStudent.firstName}`)
-        )
+        ).then(() => {
+            console.log("Enrollment email sent successfully")
+        }).catch((err) => {
+            console.error("Error sending enrollment email", err)
+        })
         // console.log("Email Sent Successfully: ", emailResponse.response);
     }
     } catch (error) {
@@ -182,13 +187,24 @@ exports.sendPaymentSuccessEmail = async (req, res) => {
     try {
         // student ko find karo
         const enrolledStudent = await User.findById(userId);
-        await mailSender(
+        
+        // Send email asynchronously (non-blocking)
+        mailSender(
             enrolledStudent.email,
             "Payment Received Successfully",
-            paymentSuccessEmail(`${enrolledStudent.firstName}`, orderId, paymentId, amount/100))
+            paymentSuccessEmail(`${enrolledStudent.firstName}`, orderId, paymentId, amount/100)
+        ).then(() => {
+            console.log("Payment success email sent successfully");
+        }).catch((err) => {
+            console.error("Error sending payment success email:", err);
+        });
+        
+        // Return success immediately
+        return res.status(200).json({success:true, message:"Payment success email queued"});
+        
     } catch (error) {
-        console.log("error in sending email", error);
-        return res.status(500).json({success:false,message:"Could not send the email"})
+        console.log("error in finding user", error);
+        return res.status(500).json({success:false,message:"Could not process payment success email"})
     }
 
 }
