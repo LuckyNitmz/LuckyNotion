@@ -40,10 +40,8 @@ export async function getUserEnrolledCourses(token) {
   let result = []
   try {
     console.log("BEFORE Calling BACKEND API FOR ENROLLED COURSES");
-    const response = await apiConnector("GET", GET_USER_ENROLLED_COURSES_API, null, {
-        Authorization: `Bearer ${token}`,
-        // 'Content-Type': 'application/json'
-      })
+    // Token will be automatically added by axios interceptor
+    const response = await apiConnector("GET", GET_USER_ENROLLED_COURSES_API)
     console.log("AFTER Calling BACKEND API FOR ENROLLED COURSES");
     // console.log(
     //   "GET_USER_ENROLLED_COURSES_API API RESPONSE............",

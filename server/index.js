@@ -25,8 +25,25 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
     cors({
-        origin: ["http://localhost:3000", "https://lucky-notion.vercel.app"],
+        origin: function (origin, callback) {
+            // Allow requests with no origin (like mobile apps, Postman, etc.)
+            if (!origin) return callback(null, true);
+            
+            const allowedOrigins = [
+                "http://localhost:3000",
+                "https://lucky-notion.vercel.app"
+            ];
+            
+            // Allow any vercel.app subdomain
+            if (origin.includes(".vercel.app") || allowedOrigins.includes(origin)) {
+                return callback(null, true);
+            }
+            
+            return callback(new Error('Not allowed by CORS'), false);
+        },
         credentials: true,
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
     })
 )
 

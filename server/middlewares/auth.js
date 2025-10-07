@@ -6,12 +6,19 @@ const user = require("../models/User");
 exports.auth = async (req,res,next) =>{
     try{
         // extract token
+        console.log("Cookies:", req.cookies);
+        console.log("Authorization header:", req.header("Authorization"));
+        console.log("Body token:", req.body.token);
+        
         const token = req.cookies.token
                      || req.body.token
                      || (req.header("Authorization") && req.header("Authorization").replace("Bearer ", ""));
 
+        console.log("Extracted token:", token ? token.substring(0, 20) + "..." : "No token found");
+
         //if Token is not present
         if(!token){
+            console.log("No token found in request");
             return res.status(401).json({
                 success: false,
                 message: 'Token is missing',
