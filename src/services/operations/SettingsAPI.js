@@ -82,11 +82,15 @@ export async function changePassword(token, formData) {
       throw new Error(response.data.message)
     }
     toast.success("Password Changed Successfully")
+    return { success: true }
   } catch (error) {
     console.log("CHANGE_PASSWORD_API API ERROR............", error)
-    toast.error(error.response.data.message)
+    const errorMessage = error?.response?.data?.message || error?.message || "Could not change password"
+    toast.error(errorMessage)
+    return { success: false, error: errorMessage }
+  } finally {
+    toast.dismiss(toastId)
   }
-  toast.dismiss(toastId)
 }
 
 export function deleteProfile(token, navigate) {

@@ -23,7 +23,11 @@ export default function UpdatePassword() {
   const submitPasswordForm = async (data) => {
     // console.log("password Data - ", data)
     try {
-      await changePassword(token, data)
+      const result = await changePassword(token, data)
+      if (result && result.success) {
+        // Reset form or navigate if needed
+        navigate("/dashboard/my-profile")
+      }
     } catch (error) {
       console.log("ERROR MESSAGE - ", error.message)
     }
