@@ -5,10 +5,14 @@ const user = require("../models/User");
 //auth
 exports.auth = async (req,res,next) =>{
     try{
-        // extract token
-        const token = req.cookies.token
-                     || req.body.token
-                     || (req.header("Authorization") && req.header("Authorization").replace("Bearer ", ""));
+        // extract token from cookie, body or Authorization header (case-insensitive)
+        let token = req.cookies?.token || req.body?.token || req.get('Authorization') || req.get('authorization');
+
+        // Normalize Bearer token format and strip quotes/whitespace
+        if (token) {
+            token = token.replace(/^Bearer\s+/i, '').trim();
+            token = token.replace(/^"+|"+$/g, '');
+        }
 
         //if Token is not present
         if(!token){
@@ -21,7 +25,6 @@ exports.auth = async (req,res,next) =>{
         //verify the token
         try {
             const decode = jwt.verify(token, process.env.JWT_SECRET);
-            console.log("Decode Part is:",decode);
             req.user = decode;
         } catch (error) {
             //verification - invalid
